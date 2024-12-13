@@ -9,6 +9,12 @@ export default defineNuxtConfig({
     },
   },
 
+  app: {
+    head: {
+      title: 'Projeto de pesquisa TCC - MFEs',
+    },
+  },
+
   runtimeConfig: {
     public: {
       apiUrl: '',
