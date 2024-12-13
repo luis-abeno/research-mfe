@@ -111,7 +111,11 @@ async function onSubmit() {
       toast.add({ title: 'Ops... falha ao salvar resposta' })
     }
 
-    toast.add({ title: 'Respostas enviadas com sucesso!' })
+    toast.add({ title: 'Respostas enviadas com sucesso!', timeout: 3000 })
+
+    setTimeout(() => {
+      navigateTo('/thanks')
+    }, 3000)
   }
   catch (error) {
     console.error('Error saving answers:', error)
