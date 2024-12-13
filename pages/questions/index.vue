@@ -107,6 +107,7 @@ async function onSubmit() {
     full_name: state.fullName,
     email: state.email,
     role: state.role,
+    whatRole: state.whatRole,
   }))
 
   try {
