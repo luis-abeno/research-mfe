@@ -65,7 +65,7 @@ const schema = object({
   email: string().email('E-mail inválido').required('Campo obrigatório'),
   role: string().required('Campo obrigatório'),
   whatRole: string().when('role', {
-    is: (val: string | undefined) => val === '12',
+    is: (val: string | undefined) => val === '13',
     then: () => string().required('Campo obrigatório'),
   }),
 })
@@ -144,6 +144,9 @@ async function onSubmit() {
 
 <template>
   <div class="p-6">
+    <h1 class="text-3xl font-bold mb-4">
+      Explorando a transição de monolitos para micro frontends
+    </h1>
     <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
       <UFormGroup label="Nome completo" name="fullName">
         <UInput v-model="state.fullName" />
@@ -157,7 +160,7 @@ async function onSubmit() {
         <USelect v-model="state.role" :options="[{ value: '', name: 'Selecione' }, ...roles]" option-attribute="name" />
       </UFormGroup>
 
-      <UFormGroup v-if="state.role === '12'" label="Qual?" name="whatRole">
+      <UFormGroup v-if="state.role === '13'" label="Qual?" name="whatRole">
         <UInput v-model="state.whatRole" />
       </UFormGroup>
 

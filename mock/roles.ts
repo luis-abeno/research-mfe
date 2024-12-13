@@ -45,6 +45,10 @@ export const roles = [
   },
   {
     value: 12,
+    name: 'Engenheiro de Software',
+  },
+  {
+    value: 13,
     name: 'Outro',
   },
 ]
