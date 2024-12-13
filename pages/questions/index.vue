@@ -1,10 +1,24 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '#ui/types'
 import { computed, onMounted, reactive, ref } from 'vue'
+import { useReCaptcha } from 'vue-recaptcha-v3'
 import { type InferType, object, string } from 'yup'
 import { roles } from '~/mock/roles'
 
+const config = useRuntimeConfig()
+
+useHead({
+  script: [
+    {
+      src: `https://www.google.com/recaptcha/api.js?render=${config.public.recaptchaSiteKey}`,
+      async: true,
+      defer: true,
+    },
+  ],
+})
+
 const toast = useToast()
+const { executeRecaptcha, recaptchaLoaded } = useReCaptcha() || {}
 
 const options = [
   { id: 1, value: 'Discordo totalmente' },
@@ -28,8 +42,6 @@ interface Question {
 const questions = ref() as Ref<{ groups: Group[] }>
 
 onMounted(() => {
-  const config = useRuntimeConfig()
-
   async function fetchData() {
     try {
       const response = await fetch(`${config.public.apiUrl}/questions`)
@@ -99,6 +111,10 @@ async function onSubmit() {
 
   try {
     const config = useRuntimeConfig()
+
+    await recaptchaLoaded!()
+    await executeRecaptcha!('login')
+
     const response = await fetch(`${config.public.apiUrl}/save-answers`, {
       method: 'POST',
       headers: {
