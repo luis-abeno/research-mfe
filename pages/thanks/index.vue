@@ -2,7 +2,7 @@
   <div>
     <div class="container mx-auto">
       <div class="content-box p-6">
-        <h1 class="text-3xl font-bold mb-4">
+        <h1 class="text-3xl font-bold mb-4 text-center">
           Obrigado pela sua participação! 🚀
         </h1>
       </div>

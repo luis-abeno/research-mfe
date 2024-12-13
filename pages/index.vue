@@ -18,6 +18,9 @@
           O objetivo deste questionário é coletar informações para fins de pesquisa, que servirão como base para a elaboração de um trabalho acadêmico. As respostas refletem exclusivamente as experiências e opiniões dos profissionais da área, sendo avaliadas por meio de uma escala Likert. Ressaltamos que não há respostas certas ou erradas.
         </p>
         <p class="mb-4">
+          E não se preocupe, todas as informações fornecidas serão tratadas de forma confidencial e anônima, garantindo a privacidade dos participantes.
+        </p>
+        <p class="mb-4">
           Agradecemos sua colaboração!
         </p>
         <NuxtLink to="/questions">
