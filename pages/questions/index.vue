@@ -1,12 +1,54 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '#ui/types'
-import { computed, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { type InferType, object, string } from 'yup'
-import { questions } from '~/mock/questions'
 import { roles } from '~/mock/roles'
+
+const options = [
+  { id: 1, value: 'Discordo totalmente' },
+  { id: 2, value: 'Discordo' },
+  { id: 3, value: 'Neutro' },
+  { id: 4, value: 'Concordo' },
+  { id: 5, value: 'Concordo totalmente' },
+]
+
+interface Group {
+  id: number
+  name: string
+  questions: Question[]
+}
+
+interface Question {
+  id: number
+  question: string
+}
+
+const questions = ref() as Ref<{ groups: Group[] }>
+
+onMounted(() => {
+  const config = useRuntimeConfig()
+
+  async function fetchData() {
+    try {
+      const response = await fetch(`${config.public.apiUrl}/questions`)
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+      const data = await response.json()
+
+      questions.value = data
+    }
+    catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  fetchData()
+})
 
 const schema = object({
   fullName: string().required('Campo obrigatório'),
+  email: string().email('E-mail inválido').required('Campo obrigatório'),
   role: string().required('Campo obrigatório'),
   whatRole: string().when('role', {
     is: (val: string | undefined) => val === '12',
@@ -14,10 +56,9 @@ const schema = object({
   }),
 })
 
-type Schema = InferType<typeof schema>
-
 const state = reactive({
   fullName: undefined,
+  email: undefined,
   role: undefined,
   whatRole: undefined,
   answers: {} as Record<string, string>,
@@ -26,12 +67,12 @@ const state = reactive({
 const currentGroupIndex = ref(0)
 
 const allQuestionsAnswered = computed(() => {
-  const currentGroup = questions.groups[currentGroupIndex.value]
+  const currentGroup = questions.value.groups[currentGroupIndex.value]
   return currentGroup.questions.every(question => state.answers[question.id])
 })
 
 function nextGroup() {
-  if (currentGroupIndex.value < questions.groups.length - 1) {
+  if (currentGroupIndex.value < questions.value.groups.length - 1) {
     currentGroupIndex.value++
   }
 }
@@ -42,9 +83,32 @@ function prevGroup() {
   }
 }
 
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  // Do something with event.data
-  console.log(event.data)
+async function onSubmit() {
+  const answers = Object.entries(state.answers).map(([id, answer]) => ({
+    id_question: Number(id),
+    answer,
+    full_name: state.fullName,
+    email: state.email,
+    role: state.role,
+  }))
+
+  try {
+    const config = useRuntimeConfig()
+    const response = await fetch(`${config.public.apiUrl}/save-answers`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ answers }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
+    }
+  }
+  catch (error) {
+    console.error('Error saving answers:', error)
+  }
 }
 </script>
 
@@ -55,15 +119,19 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         <UInput v-model="state.fullName" />
       </UFormGroup>
 
+      <UFormGroup label="E-mail" name="email">
+        <UInput v-model="state.email" />
+      </UFormGroup>
+
       <UFormGroup label="Cargo" name="role">
-        <USelect v-model="state.role" :options="roles" option-attribute="name" />
+        <USelect v-model="state.role" :options="[{ value: '', name: 'Selecione' }, ...roles]" option-attribute="name" />
       </UFormGroup>
 
       <UFormGroup v-if="state.role === '12'" label="Qual?" name="whatRole">
         <UInput v-model="state.whatRole" />
       </UFormGroup>
 
-      <div v-if="state.fullName && state.role" class="card">
+      <div v-if="state.fullName && state.email && state.role" class="card">
         <h2 class="text-2xl font-bold mb-4">
           Questionário
         </h2>
@@ -78,9 +146,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                   {{ question.question }}
                 </p>
                 <div class="flex space-x-4">
-                  <label v-for="option in question.options" :key="option" class="flex items-center space-x-2">
-                    <input v-model="state.answers[question.id]" type="radio" :name="question.id" :value="option" class="form-radio">
-                    <span>{{ option }}</span>
+                  <label v-for="option in options" :key="option.id" class="flex items-center space-x-2">
+                    <input v-model="state.answers[question.id]" type="radio" :name="question.id.toString()" :value="option" class="form-radio">
+                    <span>{{ option.value }}</span>
                   </label>
                 </div>
               </div>
@@ -89,7 +157,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         </div>
       </div>
 
-      <div v-if="state.fullName && state.role" class="flex justify-between mt-4">
+      <div v-if="state.fullName && state.email && state.role" class="flex justify-between mt-4">
         <UButton v-if="currentGroupIndex > 0 " :disabled="currentGroupIndex === 0" variant="outline" @click="prevGroup">
           Anterior
         </UButton>
