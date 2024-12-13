@@ -4,6 +4,8 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { type InferType, object, string } from 'yup'
 import { roles } from '~/mock/roles'
 
+const toast = useToast()
+
 const options = [
   { id: 1, value: 'Discordo totalmente' },
   { id: 2, value: 'Discordo' },
@@ -71,6 +73,8 @@ const allQuestionsAnswered = computed(() => {
   return currentGroup.questions.every(question => state.answers[question.id])
 })
 
+const isLoading = ref(false)
+
 function nextGroup() {
   if (currentGroupIndex.value < questions.value.groups.length - 1) {
     currentGroupIndex.value++
@@ -84,6 +88,7 @@ function prevGroup() {
 }
 
 async function onSubmit() {
+  isLoading.value = true
   const answers = Object.entries(state.answers).map(([id, answer]) => ({
     id_question: Number(id),
     answer,
@@ -103,11 +108,16 @@ async function onSubmit() {
     })
 
     if (!response.ok) {
-      throw new Error('Network response was not ok')
+      toast.add({ title: 'Ops... falha ao salvar resposta' })
     }
+
+    toast.add({ title: 'Respostas enviadas com sucesso!' })
   }
   catch (error) {
     console.error('Error saving answers:', error)
+  }
+  finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -165,8 +175,9 @@ async function onSubmit() {
         <UButton v-if="currentGroupIndex < questions.groups.length - 1" :disabled="!allQuestionsAnswered" @click="nextGroup">
           Próximo
         </UButton>
-        <UButton v-else type="submit" class="!bg-orange-500 text-white" :disabled="!allQuestionsAnswered">
-          Enviar
+        <UButton v-else type="submit" class="!bg-orange-500 text-white" :disabled="!allQuestionsAnswered || isLoading">
+          <span v-if="isLoading">Enviando...</span>
+          <span v-else>Enviar</span>
         </UButton>
       </div>
     </UForm>
