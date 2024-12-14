@@ -1,3 +1,27 @@
+<script lang="ts" setup>
+const questionsStore = useQuestionsStore()
+const config = useRuntimeConfig()
+
+onMounted(() => {
+  async function fetchData() {
+    try {
+      const response = await fetch(`${config.public.apiUrl}/questions`)
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+      const data = await response.json()
+
+      questionsStore.questions = data
+    }
+    catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  fetchData()
+})
+</script>
+
 <template>
   <div>
     <div class="container mx-auto">

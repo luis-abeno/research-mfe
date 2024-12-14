@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from '#ui/types'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useReCaptcha } from 'vue-recaptcha-v3'
-import { type InferType, object, string } from 'yup'
+import { object, string } from 'yup'
 import { roles } from '~/mock/roles'
 
 const config = useRuntimeConfig()
+const questionsStore = useQuestionsStore()
 
 useHead({
   script: [
@@ -28,37 +28,10 @@ const options = [
   { id: 5, value: 'Concordo totalmente' },
 ]
 
-interface Group {
-  id: number
-  name: string
-  questions: Question[]
-}
-
 interface Question {
   id: number
   question: string
 }
-
-const questions = ref() as Ref<{ groups: Group[] }>
-
-onMounted(() => {
-  async function fetchData() {
-    try {
-      const response = await fetch(`${config.public.apiUrl}/questions`)
-      if (!response.ok) {
-        throw new Error('Network response was not ok')
-      }
-      const data = await response.json()
-
-      questions.value = data
-    }
-    catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  fetchData()
-})
 
 const schema = object({
   fullName: string().required('Campo obrigatório'),
@@ -81,14 +54,14 @@ const state = reactive({
 const currentGroupIndex = ref(0)
 
 const allQuestionsAnswered = computed(() => {
-  const currentGroup = questions.value.groups[currentGroupIndex.value]
-  return currentGroup.questions.every(question => state.answers[question.id])
+  const currentGroup = questionsStore.questions.groups[currentGroupIndex.value]
+  return currentGroup.questions.every((question: Question) => state.answers[question.id])
 })
 
 const isLoading = ref(false)
 
 function nextGroup() {
-  if (currentGroupIndex.value < questions.value.groups.length - 1) {
+  if (currentGroupIndex.value < questionsStore.questions.groups.length - 1) {
     currentGroupIndex.value++
   }
 }
@@ -171,11 +144,11 @@ async function onSubmit() {
         </h2>
         <div class="card-container">
           <transition name="fade" mode="out-in">
-            <div v-if="questions.groups[currentGroupIndex]" :key="questions.groups[currentGroupIndex].name" class="card">
+            <div v-if="questionsStore.questions.groups[currentGroupIndex]" :key="questionsStore.questions.groups[currentGroupIndex].name" class="card">
               <h3 class="text-xl font-semibold mb-2 underline">
-                {{ questions.groups[currentGroupIndex].name }}
+                {{ questionsStore.questions.groups[currentGroupIndex].name }}
               </h3>
-              <div v-for="question in questions.groups[currentGroupIndex].questions" :key="question.id" class="mb-6">
+              <div v-for="question in questionsStore.questions.groups[currentGroupIndex].questions" :key="question.id" class="mb-6">
                 <p class="mb-2">
                   {{ question.question }}
                 </p>
@@ -195,8 +168,8 @@ async function onSubmit() {
         <UButton v-if="currentGroupIndex > 0 " :disabled="currentGroupIndex === 0" variant="outline" @click="prevGroup">
           Anterior
         </UButton>
-        <span :class="{ 'm-auto': currentGroupIndex === 0 }">{{ currentGroupIndex + 1 }} de {{ questions.groups.length }}</span>
-        <UButton v-if="currentGroupIndex < questions.groups.length - 1" :disabled="!allQuestionsAnswered" @click="nextGroup">
+        <span :class="{ 'm-auto': currentGroupIndex === 0 }">{{ currentGroupIndex + 1 }} de {{ questionsStore.questions.groups.length }}</span>
+        <UButton v-if="currentGroupIndex < questionsStore.questions.groups.length - 1" :disabled="!allQuestionsAnswered" @click="nextGroup">
           Próximo
         </UButton>
         <UButton v-else type="submit" class="!bg-orange-500 text-white" :disabled="!allQuestionsAnswered || isLoading">
