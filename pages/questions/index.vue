@@ -7,6 +7,27 @@ import { roles } from '~/mock/roles'
 const config = useRuntimeConfig()
 const questionsStore = useQuestionsStore()
 
+onMounted(() => {
+  async function fetchData() {
+    try {
+      const response = await fetch(`${config.public.apiUrl}/questions`)
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+      const data = await response.json()
+
+      questionsStore.questions = data
+    }
+    catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }
+
+  if (!questionsStore.questions) {
+    fetchData()
+  }
+})
+
 useHead({
   script: [
     {
