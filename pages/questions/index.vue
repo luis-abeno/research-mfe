@@ -22,8 +22,7 @@ onMounted(() => {
       console.error('Error fetching data:', error)
     }
   }
-
-  if (!questionsStore.questions) {
+  if (questionsStore.questions.length === 0) {
     fetchData()
   }
 })
