@@ -126,7 +126,12 @@ async function onSubmit() {
     toast.add({ title: route.query.lang !== 'en' ? 'Respostas enviadas com sucesso!' : 'Responses sent successfully!', timeout: 3000 })
 
     setTimeout(() => {
-      navigateTo('/thanks')
+      if (route.query.lang !== 'en') {
+        navigateTo('/thanks')
+      }
+      else {
+        navigateTo('/thanks?lang=en')
+      }
     }, 3000)
   }
   catch (error) {
