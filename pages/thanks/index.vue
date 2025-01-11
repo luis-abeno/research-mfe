@@ -1,9 +1,13 @@
+<script setup lang="ts">
+const route = useRoute()
+</script>
+
 <template>
   <div>
     <div class="container mx-auto">
       <div class="content-box p-6">
         <h1 class="text-3xl font-bold mb-4 text-center">
-          Obrigado pela sua participação! 🚀
+          {{ route.query.lang !== 'en' ? 'Obrigado pela sua participação! 🚀' : 'Thanks for your participation! 🚀' }}
         </h1>
         <div class="text-center flex gap-4 justify-center">
           <a href="https://github.com/luis-abeno" target="_blank" class="social-link">

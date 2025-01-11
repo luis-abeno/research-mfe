@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const questionsStore = useQuestionsStore()
 const config = useRuntimeConfig()
+const route = useRoute()
 
 onMounted(() => {
   async function fetchData() {
@@ -25,7 +26,7 @@ onMounted(() => {
 <template>
   <div>
     <div class="container mx-auto">
-      <div class="content-box p-6">
+      <div v-if="route.query.lang !== 'en'" class="content-box p-6">
         <h1 class="text-3xl font-bold mb-4">
           Explorando a transição de monolitos para micro frontends
         </h1>
@@ -50,6 +51,35 @@ onMounted(() => {
         <NuxtLink to="/questions">
           <UButton class="bg-blue-500 text-white">
             Iniciar Pesquisa
+          </UButton>
+        </NuxtLink>
+      </div>
+
+      <div v-else class="content-box p-6">
+        <h1 class="text-3xl font-bold mb-4">
+          Exploring the transition from monoliths to micro frontends
+        </h1>
+        <p class="mb-4">
+          Hello! Welcome!
+        </p>
+        <p class="mb-4">
+          This questionnaire aims to understand how organizations are approaching the transition from monolithic systems to micro frontend architecture. The focus is to investigate the impacts of this change, both on technical development and on the organization of the teams involved, especially in scenarios where modularity and collaboration are fundamental.
+        </p>
+        <p class="mb-4">
+          The adoption of micro frontends represents a significant change in the way applications are structured, allowing teams to work independently on different parts of the system. This approach can influence internal dynamics and decision-making processes, as well as promote greater scalability and agility in development.
+        </p>
+        <p class="mb-4">
+          The purpose of this questionnaire is to collect information for research purposes, which will serve as the basis for an academic work. The answers reflect exclusively the experiences and opinions of professionals in the field, being evaluated through a Likert scale. We emphasize that there are no right or wrong answers.
+        </p>
+        <p class="mb-4">
+          And don't worry, all information provided will be treated confidentially and anonymously, ensuring the privacy of participants.
+        </p>
+        <p class="mb-4">
+          We appreciate your collaboration!
+        </p>
+        <NuxtLink to="/questions">
+          <UButton class="bg-blue-500 text-white">
+            Start Survey
           </UButton>
         </NuxtLink>
       </div>

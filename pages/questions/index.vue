@@ -2,10 +2,12 @@
 import { computed, reactive, ref } from 'vue'
 import { useReCaptcha } from 'vue-recaptcha-v3'
 import { object, string } from 'yup'
-import { roles } from '~/mock/roles'
+import { roles, roles_en } from '~/mock/roles'
 
 const config = useRuntimeConfig()
 const questionsStore = useQuestionsStore()
+const route = useRoute()
+const langRoles = route.query.lang !== 'en' ? roles : roles_en
 
 onMounted(() => {
   async function fetchData() {
@@ -41,11 +43,11 @@ const toast = useToast()
 const { executeRecaptcha, recaptchaLoaded } = useReCaptcha() || {}
 
 const options = [
-  { id: 1, value: 'Discordo totalmente' },
-  { id: 2, value: 'Discordo' },
-  { id: 3, value: 'Neutro' },
-  { id: 4, value: 'Concordo' },
-  { id: 5, value: 'Concordo totalmente' },
+  { id: 1, value: route.query.lang !== 'en' ? 'Discordo totalmente' : 'Strongly disagree' },
+  { id: 2, value: route.query.lang !== 'en' ? 'Discordo' : 'Disagree' },
+  { id: 3, value: route.query.lang !== 'en' ? 'Neutro' : 'Neutral' },
+  { id: 4, value: route.query.lang !== 'en' ? 'Concordo' : 'Agree' },
+  { id: 5, value: route.query.lang !== 'en' ? 'Concordo totalmente' : 'Strongly agree' },
 ]
 
 interface Question {
@@ -54,12 +56,12 @@ interface Question {
 }
 
 const schema = object({
-  fullName: string().required('Campo obrigatório'),
-  email: string().email('E-mail inválido').required('Campo obrigatório'),
-  role: string().required('Campo obrigatório'),
+  fullName: string().required(route.query.lang !== 'en' ? 'Campo obrigatório' : 'Required field'),
+  email: string().email(route.query.lang !== 'en' ? 'E-mail inválido' : 'Invalid email').required(route.query.lang !== 'en' ? 'Campo obrigatório' : 'Required field'),
+  role: string().required(route.query.lang !== 'en' ? 'Campo obrigatório' : 'Required field'),
   whatRole: string().when('role', {
     is: (val: string | undefined) => val === '13',
-    then: () => string().required('Campo obrigatório'),
+    then: () => string().required(route.query.lang !== 'en' ? 'Campo obrigatório' : 'Required field'),
   }),
 })
 
@@ -118,10 +120,10 @@ async function onSubmit() {
     })
 
     if (!response.ok) {
-      toast.add({ title: 'Ops... falha ao salvar resposta' })
+      toast.add({ title: route.query.lang !== 'en' ? 'Ops... falha ao salvar resposta' : 'Oops... failed to save response' })
     }
 
-    toast.add({ title: 'Respostas enviadas com sucesso!', timeout: 3000 })
+    toast.add({ title: route.query.lang !== 'en' ? 'Respostas enviadas com sucesso!' : 'Responses sent successfully!', timeout: 3000 })
 
     setTimeout(() => {
       navigateTo('/thanks')
@@ -139,38 +141,38 @@ async function onSubmit() {
 <template>
   <div class="p-6">
     <h1 class="text-3xl font-bold mb-4">
-      Explorando a transição de monolitos para micro frontends
+      {{ route.query.lang !== 'en' ? 'Explorando a transição de monolitos para micro frontends' : 'Exploring the transition from monoliths to micro frontends' }}
     </h1>
     <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
-      <UFormGroup label="Nome completo" name="fullName">
+      <UFormGroup :label="route.query.lang !== 'en' ? 'Nome completo' : 'Full Name'" name="fullName">
         <UInput v-model="state.fullName" />
       </UFormGroup>
 
-      <UFormGroup label="E-mail" name="email">
+      <UFormGroup :label="route.query.lang !== 'en' ? 'E-mail' : 'Email'" name="email">
         <UInput v-model="state.email" />
       </UFormGroup>
 
-      <UFormGroup label="Cargo" name="role">
-        <USelect v-model="state.role" :options="[{ value: '', name: 'Selecione' }, ...roles]" option-attribute="name" />
+      <UFormGroup :label="route.query.lang !== 'en' ? 'Cargo' : 'Role'" name="role">
+        <USelect v-model="state.role" :options="[{ value: '', name: route.query.lang !== 'en' ? 'Selecione' : 'Select' }, ...langRoles]" option-attribute="name" />
       </UFormGroup>
 
-      <UFormGroup v-if="state.role === '13'" label="Qual?" name="whatRole">
+      <UFormGroup v-if="state.role === '13'" :label="route.query.lang !== 'en' ? 'Qual?' : 'What?'" name="whatRole">
         <UInput v-model="state.whatRole" />
       </UFormGroup>
 
       <div v-if="state.fullName && state.email && state.role" class="card">
         <h2 class="text-2xl font-bold mb-4">
-          Questionário
+          {{ route.query.lang !== 'en' ? 'Questionário' : 'Questionnaire' }}
         </h2>
         <div class="card-container">
           <transition name="fade" mode="out-in">
             <div v-if="questionsStore.questions.groups[currentGroupIndex]" :key="questionsStore.questions.groups[currentGroupIndex].name" class="card">
               <h3 class="text-xl font-semibold mb-2 underline">
-                {{ questionsStore.questions.groups[currentGroupIndex].name }}
+                {{ route.query.lang !== 'en' ? questionsStore.questions.groups[currentGroupIndex].name : questionsStore.questions.groups[currentGroupIndex].name_en }}
               </h3>
               <div v-for="question in questionsStore.questions.groups[currentGroupIndex].questions" :key="question.id" class="mb-6">
                 <p class="mb-2">
-                  {{ question.question }}
+                  {{ route.query.lang !== 'en' ? question.question : question.question_en }}
                 </p>
                 <div class="flex space-x-4">
                   <label v-for="option in options" :key="option.id" class="flex items-center space-x-2">
@@ -186,15 +188,15 @@ async function onSubmit() {
 
       <div v-if="state.fullName && state.email && state.role" class="flex justify-between mt-4">
         <UButton v-if="currentGroupIndex > 0 " :disabled="currentGroupIndex === 0" variant="outline" @click="prevGroup">
-          Anterior
+          {{ route.query.lang !== 'en' ? 'Anterior' : 'Previous' }}
         </UButton>
-        <span :class="{ 'm-auto': currentGroupIndex === 0 }">{{ currentGroupIndex + 1 }} de {{ questionsStore.questions.groups.length }}</span>
+        <span :class="{ 'm-auto': currentGroupIndex === 0 }">{{ currentGroupIndex + 1 }} {{ route.query.lang !== 'en' ? 'de' : 'of' }} {{ questionsStore.questions.groups.length }}</span>
         <UButton v-if="currentGroupIndex < questionsStore.questions.groups.length - 1" :disabled="!allQuestionsAnswered" @click="nextGroup">
-          Próximo
+          {{ route.query.lang !== 'en' ? 'Próximo' : 'Next' }}
         </UButton>
         <UButton v-else type="submit" class="!bg-orange-500 text-white" :disabled="!allQuestionsAnswered || isLoading">
-          <span v-if="isLoading">Enviando...</span>
-          <span v-else>Enviar</span>
+          <span v-if="isLoading">{{ route.query.lang !== 'en' ? 'Enviando...' : 'Sending...' }}</span>
+          <span v-else>{{ route.query.lang !== 'en' ? 'Enviar' : 'Submit' }}</span>
         </UButton>
       </div>
     </UForm>

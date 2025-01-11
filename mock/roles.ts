@@ -52,3 +52,58 @@ export const roles = [
     name: 'Outro',
   },
 ]
+
+export const roles_en = [
+  {
+    value: 1,
+    name: 'Backend Developer',
+  },
+  {
+    value: 2,
+    name: 'Frontend Developer',
+  },
+  {
+    value: 3,
+    name: 'DevOps Engineer',
+  },
+  {
+    value: 4,
+    name: 'QA Analyst',
+  },
+  {
+    value: 5,
+    name: 'Project Manager',
+  },
+  {
+    value: 6,
+    name: 'Software Architect',
+  },
+  {
+    value: 7,
+    name: 'Data Engineer',
+  },
+  {
+    value: 8,
+    name: 'Data Scientist',
+  },
+  {
+    value: 9,
+    name: 'Mobile Developer',
+  },
+  {
+    value: 10,
+    name: 'Systems Analyst',
+  },
+  {
+    value: 11,
+    name: 'Fullstack Developer',
+  },
+  {
+    value: 12,
+    name: 'Software Engineer',
+  },
+  {
+    value: 13,
+    name: 'Other',
+  },
+]
