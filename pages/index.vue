@@ -77,7 +77,7 @@ onMounted(() => {
         <p class="mb-4">
           We appreciate your collaboration!
         </p>
-        <NuxtLink to="/questions">
+        <NuxtLink to="/questions?lang=en">
           <UButton class="bg-blue-500 text-white">
             Start Survey
           </UButton>
